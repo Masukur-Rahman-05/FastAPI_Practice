@@ -51,6 +51,26 @@ async def get_all_notes():
     notes = await collection.find({}).sort("created_at",-1).to_list(length=100)
     return [helper_note(note) for note in notes]
 
+@app.get("/get/{note_id}",response_model=NoteResponse)
+async def get_one_note(note_id:str):
+    if not ObjectId.is_valid(note_id):
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail = "Invalid ID Format"
+        )
+    db = get_database()
+    collection = db.notes
+
+    note = await collection.find_one({"_id":ObjectId(note_id)})
+
+    if not note:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = f"Note with id {note_id} not found"
+        )
+    
+    return helper_note(note)
+
 
 @app.put("/update/{note_id}",response_model=NoteResponse)
 async def update_note(note_id:str,note:NoteUpdate):
@@ -86,5 +106,27 @@ async def update_note(note_id:str,note:NoteUpdate):
     updated_note = await collection.find_one({"_id":ObjectId(note_id)})
 
     return helper_note(updated_note)
+
+
+@app.delete("/delete/{note_id}",status_code=status.HTTP_204_NO_CONTENT)
+async def delete_note(note_id:str):
+    if not ObjectId.is_valid(note_id):
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail="Invalid ID formate"
+        )
+    
+    db = get_database()
+    collection = db.notes
+    
+    result = await collection.delete_one({"_id":ObjectId(note_id)})
+
+    if result.deleted_count == 0:
+        raise HTTPException(
+            status_code = status.HTTP_204_NO_CONTENT,
+            detail = f"Note with {note_id} not found"
+        )
+    return None
+
 
 
