@@ -169,7 +169,21 @@ async def multiple_body(
 ):
     result = {"use":user, "product":product, "importance":importance}
     return result
-    
+
+# For embed = True, the data will be sent in the following format
+
+# {
+#   "use": {
+#     "name": "John",
+#     "age": 25
+#   },
+#   "product": {
+#     "name": "Laptop",
+#     "price": 999.99
+#   },
+#   "importance": 10
+# }
+
 # Body Multiple Parameter means when we will send multiple data that are associate to Multiple model, then we will use Body(). so that
 # FastAPI knows that the data is coming should be extracted From Body(). not from Path() or Query()
 # If we want to extracted from path parameter then we will write path()
